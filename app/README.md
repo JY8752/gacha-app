@@ -4,6 +4,25 @@ go + gRPC + mongo + redis + [franela/goblin](https://github.com/franela/goblin)
 
 ## setup
 
+### init
 ```
 go mod init JY8752/gacha-app
 ```
+
+### gRPC
+```
+go get -u google.golang.org/grpc
+go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
+```
+
+## gRPC
+
+### コード生成
+
+```
+protoc --go_out=./pkg/grpc --go_opt=paths=source_relative \
+	--go-grpc_out=./pkg/grpc --go-grpc_opt=paths=source_relative\
+  -I=./proto \
+	proto/**/*.proto
+```
+
