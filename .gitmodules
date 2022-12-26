@@ -1,0 +1,3 @@
+[submodule "app/proto"]
+	path = app/proto
+	url = git@github.com:JY8752/gacha-app-proto.git
