@@ -1,1 +1,4 @@
 app/pkg/grpc/**/*
+
+**/.env
+**/*.env

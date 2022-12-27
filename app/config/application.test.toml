@@ -1,0 +1,4 @@
+# test config
+
+[mongo]
+uri = "test"
