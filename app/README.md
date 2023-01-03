@@ -48,3 +48,8 @@ protoc --go_out=./pkg/grpc --go_opt=paths=source_relative \
 go get -u github.com/ory/dockertest/v3
 ```
 
+### testcontainers
+
+```
+go get -u github.com/testcontainers/testcontainers-go
+```
