@@ -1,33 +1,27 @@
 package datastore
 
 import (
-	"JY8752/gacha-app/config"
 	"context"
-	"log"
-	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var client *mongo.Client
-
-func Connect() {
-	serverAPIOptions := options.ServerAPI(options.ServerAPIVersion1)
-	clientOptions := options.Client().
-		ApplyURI(config.GetConfig().Mongo.Uri).
-		SetServerAPIOptions(serverAPIOptions)
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	var err error
-	client, err = mongo.Connect(ctx, clientOptions)
-	if err != nil {
-		log.Fatal(err)
-	}
+type MongoClient struct {
+	client *mongo.Client
 }
 
-func GetDB(name string) *mongo.Database {
-	return client.Database(name)
+func NewMongoClient(c *mongo.Client) *MongoClient {
+	return &MongoClient{client: c}
+}
+
+func (mc *MongoClient) GetDB(name string) *mongo.Database {
+	return mc.client.Database(name)
+}
+
+func (mc *MongoClient) Connect(ctx context.Context) error {
+	return mc.client.Connect(ctx)
+}
+
+func (mc *MongoClient) Disconnect(ctx context.Context) error {
+	return mc.client.Disconnect(ctx)
 }

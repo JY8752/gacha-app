@@ -10,28 +10,30 @@ import (
 	"fmt"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 const COLLECTION_NAME = "Users"
 
 type user struct {
-	id        primitive.ObjectID `bson:"_id"`
-	name      string             `bson:"nm"`
-	updatedAt time.Time          `bson:"updAt"`
-	createdAt time.Time          `bson:"crtAt"`
+	Id        primitive.ObjectID `bson:"_id"`
+	Name      string             `bson:"nm"`
+	UpdatedAt time.Time          `bson:"updAt"`
+	CreatedAt time.Time          `bson:"crtAt"`
 }
 
 type userRepository struct {
+	client *datastore.MongoClient
 }
 
-func NewUserRepository() repository.UserRepository {
-	return &userRepository{}
+func NewUserRepository(client *datastore.MongoClient) repository.UserRepository {
+	return &userRepository{client: client}
 }
 
 func (u *userRepository) Create(ctx context.Context, name string, time time.Time) (string, error) {
-	doc := &user{name: name, updatedAt: time, createdAt: time}
-	result, err := datastore.GetDB(constant.MONGO_MAIN_DB).Collection(COLLECTION_NAME).InsertOne(ctx, doc)
+	doc := &user{Id: primitive.NewObjectID(), Name: name, UpdatedAt: time, CreatedAt: time}
+	result, err := u.client.GetDB(constant.MONGO_MAIN_DB).Collection(COLLECTION_NAME).InsertOne(ctx, doc)
 
 	if err != nil {
 		return "", applicationerror.NewApplicationError("Fail create user.", err)
@@ -50,10 +52,16 @@ func (u *userRepository) FindById(ctx context.Context, id string) (*model.User, 
 		return nil, applicationerror.NewApplicationError(fmt.Sprintf("argument id is not ObjectId. id: %s\n", id), err)
 	}
 
-	filter := &user{id: oid}
-	m := &model.User{}
-	if err := datastore.GetDB(constant.MONGO_MAIN_DB).Collection(COLLECTION_NAME).FindOne(ctx, filter).Decode(m); err != nil {
+	filter := bson.D{{Key: "_id", Value: oid}}
+	var user user
+	if err := u.client.GetDB(constant.MONGO_MAIN_DB).Collection(COLLECTION_NAME).FindOne(ctx, filter).Decode(&user); err != nil {
 		return nil, applicationerror.NewApplicationError(fmt.Sprintf("Fail findById id: %s\n", id), err)
 	}
-	return m, nil
+
+	return &model.User{
+		Id:        user.Id.Hex(),
+		Name:      user.Name,
+		UpdatedAt: user.UpdatedAt,
+		CreatedAt: user.CreatedAt,
+	}, nil
 }
