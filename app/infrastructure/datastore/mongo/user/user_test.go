@@ -26,6 +26,7 @@ func TestMain(m *testing.M) {
 	code := m.Run()
 
 	mongo.Close()
+
 	os.Exit(code)
 }
 

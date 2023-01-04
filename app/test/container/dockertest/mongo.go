@@ -14,8 +14,8 @@ import (
 type MongoContainer struct {
 	DbClient *mongo.Client
 
-	pool     *dockertest.Pool
-	resource *dockertest.Resource
+	Pool     *dockertest.Pool
+	Resource *dockertest.Resource
 }
 
 func Start() (*MongoContainer, error) {
@@ -74,19 +74,19 @@ func Start() (*MongoContainer, error) {
 
 	fmt.Println("start mongo container🐳")
 
-	return &MongoContainer{DbClient: dbClient, pool: pool, resource: resource}, nil
+	return &MongoContainer{DbClient: dbClient, Pool: pool, Resource: resource}, nil
 }
 
 func (m *MongoContainer) Close() (err error) {
-	// When you're done, kill and remove the container
-	if err = m.pool.Purge(m.resource); err != nil {
-		log.Printf("Could not purge resource: %s", err)
-		return err
-	}
-
 	// disconnect mongodb client
 	if err = m.DbClient.Disconnect(context.TODO()); err != nil {
 		panic(err)
+	}
+
+	// When you're done, kill and remove the container
+	if err = m.Pool.Purge(m.Resource); err != nil {
+		log.Printf("Could not purge resource: %s", err)
+		return err
 	}
 
 	fmt.Println("close mongo container🐳")

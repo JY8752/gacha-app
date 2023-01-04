@@ -2,7 +2,9 @@ package container_testcontainers
 
 import (
 	"context"
+	"time"
 
+	"github.com/docker/go-connections/nat"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 )
@@ -12,6 +14,9 @@ type mongoContainer struct {
 }
 
 func SetupMongo(ctx context.Context) (*mongoContainer, error) {
+	port, _ := nat.NewPort("", "27017")
+	timeout := 2 * time.Minute // default
+
 	req := testcontainers.ContainerRequest{
 		Image:        "mongo:latest",
 		ExposedPorts: []string{"27017/tcp"},
@@ -19,10 +24,7 @@ func SetupMongo(ctx context.Context) (*mongoContainer, error) {
 			"MONGO_INITDB_ROOT_USERNAME": "user",
 			"MONGO_INITDB_ROOT_PASSWORD": "password",
 		},
-		WaitingFor: wait.ForAll(
-			wait.ForLog("port: 27017 Mongo"),
-			wait.ForListeningPort("27017/tcp"),
-		),
+		WaitingFor: wait.ForListeningPort(port).WithStartupTimeout(timeout),
 	}
 
 	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
