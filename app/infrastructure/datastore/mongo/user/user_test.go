@@ -14,18 +14,18 @@ import (
 var rep repository.UserRepository
 
 func TestMain(m *testing.M) {
-	mongo, err := container.Start()
+	mongoClient, close, err := container.Start()
 	if err != nil {
-		log.Fatalf("fail start container. err: %s\n", err.Error())
+		log.Fatal(err)
 	}
 
-	client := datastore.NewMongoClient(mongo.DbClient)
+	client := datastore.NewMongoClient(mongoClient)
 
 	rep = NewUserRepository(client)
 
 	code := m.Run()
 
-	mongo.Close()
+	close()
 
 	os.Exit(code)
 }

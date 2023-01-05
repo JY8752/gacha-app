@@ -11,26 +11,19 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type MongoContainer struct {
-	DbClient *mongo.Client
-
-	Pool     *dockertest.Pool
-	Resource *dockertest.Resource
-}
-
-func Start() (*MongoContainer, error) {
+func Start() (*mongo.Client, func(), error) {
 	// uses a sensible default on windows (tcp/http) and linux/osx (socket)
 	pool, err := dockertest.NewPool("")
 	if err != nil {
 		log.Printf("Could not construct pool: %s\n", err)
-		return nil, err
+		return nil, nil, err
 	}
 
 	// uses pool to try to connect to Docker
 	err = pool.Client.Ping()
 	if err != nil {
 		log.Printf("Could not connect to Docker: %s", err)
-		return nil, err
+		return nil, nil, err
 	}
 
 	runOptions := &dockertest.RunOptions{
@@ -69,27 +62,24 @@ func Start() (*MongoContainer, error) {
 
 	if err != nil {
 		log.Printf("Could not connect to docker: %s", err)
-		return nil, err
+		return nil, nil, err
 	}
 
 	fmt.Println("start mongo container🐳")
 
-	return &MongoContainer{DbClient: dbClient, Pool: pool, Resource: resource}, nil
+	return dbClient, func() { close(dbClient, pool, resource) }, nil
 }
 
-func (m *MongoContainer) Close() (err error) {
+func close(m *mongo.Client, pool *dockertest.Pool, resource *dockertest.Resource) {
 	// disconnect mongodb client
-	if err = m.DbClient.Disconnect(context.TODO()); err != nil {
+	if err := m.Disconnect(context.TODO()); err != nil {
 		panic(err)
 	}
 
 	// When you're done, kill and remove the container
-	if err = m.Pool.Purge(m.Resource); err != nil {
-		log.Printf("Could not purge resource: %s", err)
-		return err
+	if err := pool.Purge(resource); err != nil {
+		panic(err)
 	}
 
 	fmt.Println("close mongo container🐳")
-
-	return nil
 }
