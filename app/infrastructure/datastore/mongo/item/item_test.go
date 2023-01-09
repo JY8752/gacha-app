@@ -2,7 +2,6 @@ package datastore
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"testing"
@@ -11,9 +10,6 @@ import (
 	repository "JY8752/gacha-app/domain/repository/item"
 	datastore "JY8752/gacha-app/infrastructure/datastore/mongo"
 	container_testcontainers "JY8752/gacha-app/test/container/testcontainers"
-
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var rep repository.ItemRepository
@@ -25,26 +21,12 @@ func TestMain(m *testing.M) {
 		log.Fatal(err)
 	}
 
-	host, _ := container.Host(ctx)
-	p, _ := container.MappedPort(ctx, "27017/tcp")
-
-	connectionString := fmt.Sprintf("mongodb://user:password@%s:%d/?connect=direct", host, uint(p.Int()))
-	mongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(
-		connectionString,
-	))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	client := datastore.NewMongoClient(mongoClient)
+	client := datastore.NewMongoClient(&container.Client)
 	rep = NewItemRepository(client)
 
 	code := m.Run()
 
-	if err = mongoClient.Disconnect(ctx); err != nil {
-		log.Fatal(err)
-	}
-
+	container.Close(ctx)
 	os.Exit(code)
 }
 

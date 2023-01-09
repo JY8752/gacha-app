@@ -30,6 +30,36 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
+// func TestMain(m *testing.M) {
+// 	ctx := context.Background()
+// 	container, err := container_testcontainers.SetupMongo(ctx)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+
+// 	host, _ := container.Host(ctx)
+// 	p, _ := container.MappedPort(ctx, "27017/tcp")
+
+// 	connectionString := fmt.Sprintf("mongodb://user:password@%s:%d/?connect=direct", host, uint(p.Int()))
+// 	mongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(
+// 		connectionString,
+// 	))
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+
+// 	client := datastore.NewMongoClient(mongoClient)
+// 	rep = NewUserRepository(client)
+
+// 	code := m.Run()
+
+// 	if err = mongoClient.Disconnect(ctx); err != nil {
+// 		log.Fatal(err)
+// 	}
+
+// 	os.Exit(code)
+// }
+
 func TestUser(t *testing.T) {
 	time := time.Date(2022, 1, 3, 0, 0, 0, 0, time.UTC)
 

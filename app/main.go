@@ -14,5 +14,4 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Println("Not exist .env file.")
 	}
-
 }
