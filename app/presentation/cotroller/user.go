@@ -3,6 +3,7 @@ package controller
 import (
 	service "JY8752/gacha-app/domain/service/user"
 	grpc "JY8752/gacha-app/pkg/grpc/user"
+	"JY8752/gacha-app/registory"
 	"context"
 	"time"
 
@@ -14,8 +15,8 @@ type userController struct {
 	userService service.UserService
 }
 
-func NewUserController(userService service.UserService) grpc.UserServer {
-	return &userController{userService: userService}
+func NewUserController(r registory.UserServiceRegistory) grpc.UserServer {
+	return &userController{userService: service.NewUserService(r)}
 }
 
 func (u *userController) Create(ctx context.Context, req *grpc.CreateRequest) (*grpc.CreateResponse, error) {

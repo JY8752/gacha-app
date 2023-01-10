@@ -5,6 +5,7 @@ import (
 	userItem "JY8752/gacha-app/domain/model/useritem"
 	userRepository "JY8752/gacha-app/domain/repository/user"
 	userItemRepository "JY8752/gacha-app/domain/repository/useritem"
+	"JY8752/gacha-app/registory"
 	"context"
 	"time"
 
@@ -20,8 +21,8 @@ type userService struct {
 	userItemRep userItemRepository.UserItemRepository
 }
 
-func NewUserService(userRep userRepository.UserRepository, userItemRep userItemRepository.UserItemRepository) UserService {
-	return &userService{userRep: userRep, userItemRep: userItemRep}
+func NewUserService(r registory.UserServiceRegistory) UserService {
+	return &userService{userRep: r.User(), userItemRep: r.UserItem()}
 }
 
 func (u *userService) Create(ctx context.Context, name string, time time.Time) (*user.User, error) {

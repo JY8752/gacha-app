@@ -108,6 +108,7 @@ func TestUserItem(t *testing.T) {
 		})
 
 		for _, testcase := range testcases {
+			testcase := testcase
 			g.It(testcase.name, func() {
 				// given
 				for _, userItem := range testcase.userItems {
@@ -176,6 +177,7 @@ func TestUserItem(t *testing.T) {
 		})
 
 		for _, testcase := range testcases {
+			testcase := testcase
 			g.It(testcase.name, func() {
 				for _, userItem := range testcase.userItems {
 					rep.Create(context.Background(), userItem.UserId, userItem.ItemId, 1, time)

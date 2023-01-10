@@ -11,5 +11,5 @@ import (
 func RegisterController(s grpc.ServiceRegistrar, mongo *datastore.MongoClient) {
 	userRegistory := registory.NewUserServiceRegistory(mongo)
 
-	user.RegisterUserServer(s, NewUserController(userRegistory.User()))
+	user.RegisterUserServer(s, NewUserController(userRegistory))
 }
