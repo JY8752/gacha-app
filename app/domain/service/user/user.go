@@ -1,32 +1,37 @@
 package service
 
 import (
-	model "JY8752/gacha-app/domain/model/user"
-	repository "JY8752/gacha-app/domain/repository/user"
+	user "JY8752/gacha-app/domain/model/user"
+	userItem "JY8752/gacha-app/domain/model/useritem"
+	userRepository "JY8752/gacha-app/domain/repository/user"
+	userItemRepository "JY8752/gacha-app/domain/repository/useritem"
 	"context"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type UserService interface {
-	Create(ctx context.Context, name string, time time.Time) (*model.User, error)
+	Create(ctx context.Context, name string, time time.Time) (*user.User, error)
 }
 
 type userService struct {
-	userRep repository.UserRepository
+	userRep     userRepository.UserRepository
+	userItemRep userItemRepository.UserItemRepository
 }
 
-func NewUserService(rep repository.UserRepository) UserService {
-	return &userService{rep}
+func NewUserService(userRep userRepository.UserRepository, userItemRep userItemRepository.UserItemRepository) UserService {
+	return &userService{userRep: userRep, userItemRep: userItemRep}
 }
 
-func (u *userService) Create(ctx context.Context, name string, time time.Time) (*model.User, error) {
+func (u *userService) Create(ctx context.Context, name string, time time.Time) (*user.User, error) {
 	oid, err := u.userRep.Create(ctx, name, time)
 	if err != nil {
 		return nil, err
 	}
-	return &model.User{Id: oid, Name: name, UpdatedAt: time, CreatedAt: time}, nil
+	return &user.User{Id: oid, Name: name, UpdatedAt: time, CreatedAt: time}, nil
 }
 
-func (u *userService) ListUserItems() {
-
+func (u *userService) ListUserItems(ctx context.Context, userId primitive.ObjectID) []userItem.UserItem {
+	return u.userItemRep.List(ctx, userId)
 }
