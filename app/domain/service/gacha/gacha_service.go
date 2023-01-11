@@ -10,6 +10,7 @@ import (
 )
 
 type GachaService interface {
+	Buy(ctx context.Context, userId primitive.ObjectID, gachaId string, time time.Time) (*model.UserItem, error)
 }
 
 type gachaService struct {
