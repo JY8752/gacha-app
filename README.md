@@ -10,3 +10,6 @@ go + redis + mongo + goblin
 
 ## app
 ガチャを引くAPI。gRPCサーバーで構築。
+
+## ER図
+<img width="854" alt="image" src="https://user-images.githubusercontent.com/58534052/211817087-b21825a4-ffd3-45bb-94be-a7c3e5e2c237.png">
