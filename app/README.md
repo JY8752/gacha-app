@@ -60,3 +60,58 @@ mochaライクなBDDテスティングフレームワーク
 ```
 go get -u github.com/franela/goblin
 ```
+
+## result
+
+### list
+
+```
+[~/study/go/gacha-app/server/app] % grpcurl --plaintext localhost:8080 list
+gacha.Gacha
+grpc.reflection.v1alpha.ServerReflection
+user.User
+```
+
+### User.Create
+
+```
+[~/work/myapp/study/go/gacha-app] % grpcurl --plaintext -emit-defaults -d '{"name": "test"}' localhost:8080 user.User.Create
+{
+  "id": "63beba5b6792a1c71564bc28",
+  "name": "test",
+  "createdAt": "2023-01-11T13:32:11.972707Z"
+}
+```
+
+### User.ListUserItems
+
+```
+[~/work/myapp/study/go/gacha-app] % grpcurl --plaintext -emit-defaults -d '{"user_id": "63bcd84dfe44aca595b37536"}' localhost:8080 user.User.ListUserItems
+{
+  "items": [
+    {
+      "itemId": "item3",
+      "name": "item3",
+      "count": 3
+    },
+    {
+      "itemId": "item2",
+      "name": "item2",
+      "count": 1
+    }
+  ]
+}
+```
+
+### Gacha.Buy
+
+```
+[~/work/myapp/study/go/gacha-app] % grpcurl --plaintext -emit-defaults -d '{"user_id": "63bcd84dfe44aca595b37536", "gacha_id": "gacha1"}' localhost:8080 gacha.Gacha.Buy                                           
+{
+  "item": {
+    "itemId": "item3",
+    "name": "",
+    "count": 4
+  }
+}
+```
