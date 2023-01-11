@@ -9,3 +9,8 @@ type Item struct {
 	UpdatedAt time.Time
 	CreatedAt time.Time
 }
+
+type ItemWith struct {
+	ItemId string
+	Weight int
+}
