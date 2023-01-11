@@ -9,7 +9,7 @@ import (
 )
 
 func RegisterController(s grpc.ServiceRegistrar, mongo *datastore.MongoClient) {
-	userRegistory := registory.NewUserServiceRegistory(mongo)
+	registory := registory.NewServiceRegistory(mongo)
 
-	user.RegisterUserServer(s, NewUserController(userRegistory))
+	user.RegisterUserServer(s, NewUserController(registory))
 }

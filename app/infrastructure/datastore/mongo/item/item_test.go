@@ -64,3 +64,16 @@ func TestItem(t *testing.T) {
 		t.Fatalf("expect createdAt is %v, but %v\n", time, item.CreatedAt)
 	}
 }
+
+func TestFindInItemId(t *testing.T) {
+	ctx := context.Background()
+	time := time.Date(2023, 1, 10, 0, 0, 0, 0, time.UTC)
+	rep.Create(ctx, "item-1", "item-1", time)
+	rep.Create(ctx, "item-2", "item-2", time)
+
+	results := rep.FindInItemId(context.Background(), []string{"item-1", "item-2"})
+
+	if len(results) != 2 {
+		t.Fatalf("expect result length is 2, but %d\n", len(results))
+	}
+}

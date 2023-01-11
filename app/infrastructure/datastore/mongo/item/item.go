@@ -8,6 +8,7 @@ import (
 	datastore "JY8752/gacha-app/infrastructure/datastore/mongo"
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -16,7 +17,7 @@ import (
 
 const COLLECTION_NAME = "Items"
 
-type item struct {
+type Item struct {
 	Id        primitive.ObjectID `bson:"_id"`
 	ItemId    string             `bson:"itmId"`
 	Name      string             `bson:"nm"`
@@ -33,7 +34,7 @@ func NewItemRepository(c *datastore.MongoClient) repository.ItemRepository {
 }
 
 func (ir *itemRepository) Create(ctx context.Context, itemId, name string, time time.Time) (string, error) {
-	doc := item{Id: primitive.NewObjectID(), ItemId: itemId, Name: name, UpdatedAt: time, CreatedAt: time}
+	doc := Item{Id: primitive.NewObjectID(), ItemId: itemId, Name: name, UpdatedAt: time, CreatedAt: time}
 	result, err := ir.client.GetDB(constant.MONGO_MAIN_DB).Collection(COLLECTION_NAME).InsertOne(ctx, &doc)
 
 	if err != nil {
@@ -54,16 +55,40 @@ func (ir *itemRepository) FindById(ctx context.Context, id string) (*model.Item,
 	}
 
 	filter := bson.D{{Key: "_id", Value: oid}}
-	var item item
+	var item Item
 	if err := ir.client.GetDB(constant.MONGO_MAIN_DB).Collection(COLLECTION_NAME).FindOne(ctx, filter).Decode(&item); err != nil {
 		return nil, applicationerror.NewApplicationError(fmt.Sprintf("Fail findById id: %s\n", id), err)
 	}
 
+	return toModel(item), nil
+}
+
+func toModel(doc Item) *model.Item {
 	return &model.Item{
-		Id:        item.Id.Hex(),
-		ItemId:    item.ItemId,
-		Name:      item.Name,
-		UpdatedAt: item.UpdatedAt,
-		CreatedAt: item.CreatedAt,
-	}, nil
+		Id:        doc.Id.Hex(),
+		ItemId:    doc.ItemId,
+		Name:      doc.Name,
+		UpdatedAt: doc.UpdatedAt,
+		CreatedAt: doc.CreatedAt,
+	}
+}
+
+func (ir *itemRepository) FindInItemId(ctx context.Context, itemIds []string) []model.Item {
+	filter := bson.D{{Key: "itmId", Value: bson.D{{Key: "$in", Value: itemIds}}}}
+	cursol, err := ir.client.GetDB(constant.MONGO_MAIN_DB).Collection(COLLECTION_NAME).Find(ctx, filter)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var results []Item
+	if err := cursol.All(ctx, &results); err != nil {
+		log.Fatal(err)
+	}
+
+	var items []model.Item
+	for _, i := range results {
+		items = append(items, *toModel(i))
+	}
+
+	return items
 }

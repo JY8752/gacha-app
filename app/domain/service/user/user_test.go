@@ -20,7 +20,7 @@ import (
 
 // UserServiceRegistory
 type mockUserServiceRegistory struct {
-	registory.UserServiceRegistory // インターフェイス埋め込みすることでメソッド実装なくてもコンパイル通る
+	registory.ServiceRegistory // インターフェイス埋め込みすることでメソッド実装なくてもコンパイル通る
 	mockUserRepository
 	mockUserItemRepository
 }

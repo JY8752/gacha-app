@@ -9,4 +9,5 @@ import (
 type ItemRepository interface {
 	Create(ctx context.Context, itemId, name string, time time.Time) (string, error)
 	FindById(ctx context.Context, id string) (*model.Item, error)
+	FindInItemId(ctx context.Context, itemIds []string) []model.Item
 }

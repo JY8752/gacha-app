@@ -14,6 +14,7 @@ import (
 
 type UserService interface {
 	Create(ctx context.Context, name string, time time.Time) (*user.User, error)
+	ListUserItems(ctx context.Context, userId primitive.ObjectID) []userItem.UserItem
 }
 
 type userService struct {
@@ -21,7 +22,7 @@ type userService struct {
 	userItemRep userItemRepository.UserItemRepository
 }
 
-func NewUserService(r registory.UserServiceRegistory) UserService {
+func NewUserService(r registory.ServiceRegistory) UserService {
 	return &userService{userRep: r.User(), userItemRep: r.UserItem()}
 }
 
