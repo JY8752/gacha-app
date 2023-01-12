@@ -23,6 +23,15 @@ go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
 go get -u go.mongodb.org/mongo-driver/mongo
 ```
 
+### redis 
+```
+go get -u github.com/go-redis/redis/v9
+```
+
+```
+docker run --name gacha-app-redis -d redis
+```
+
 ### config
 ```
 go get -u github.com/BurntSushi/toml@latest

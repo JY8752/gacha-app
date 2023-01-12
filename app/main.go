@@ -10,8 +10,10 @@ import (
 
 	"JY8752/gacha-app/config"
 	mongoclient "JY8752/gacha-app/infrastructure/datastore/mongo"
+	redisclient "JY8752/gacha-app/infrastructure/datastore/redis"
 	register "JY8752/gacha-app/presentation/cotroller"
 
+	"github.com/go-redis/redis/v9"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -46,8 +48,16 @@ func main() {
 	}
 	mongoClient := mongoclient.NewMongoClient(client)
 
+	// redis
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+	redisClient := redisclient.NewRedisClient(rdb)
+
 	// controllerの登録
-	register.RegisterController(s, mongoClient)
+	register.RegisterController(s, mongoClient, redisClient)
 
 	// サーバーリフレクションの設定
 	reflection.Register(s)

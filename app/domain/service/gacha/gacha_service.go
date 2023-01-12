@@ -28,10 +28,16 @@ func (g *gachaService) Buy(ctx context.Context, userId primitive.ObjectID, gacha
 		return nil, err
 	}
 
-	// ガチャ筐体のアイテム一覧から抽選する
-	itemId := gacha.Lottery()
-
 	// 前回取得アイテムと被っていたらやりなおし
+	history := g.GachaHistory().Get(ctx, gachaId, userId)
+
+	var itemId string
+	for {
+		// ガチャ筐体のアイテム一覧から抽選する
+		if itemId = gacha.Lottery(); itemId != history {
+			break
+		}
+	}
 
 	// ユーザーアイテムを更新する
 	if err := g.UserItem().IncrementCount(ctx, userId, itemId, time); err != nil {
@@ -40,6 +46,11 @@ func (g *gachaService) Buy(ctx context.Context, userId primitive.ObjectID, gacha
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	// 取得アイテムを記録
+	if err = g.GachaHistory().Add(ctx, gachaId, itemId, userId); err != nil {
+		return nil, err
 	}
 
 	// レスポンス返す
