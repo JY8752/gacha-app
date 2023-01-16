@@ -5,7 +5,6 @@ import (
 	datastore "JY8752/gacha-app/infrastructure/datastore/mongo"
 	testcontainers "JY8752/gacha-app/test/container/testcontainers"
 	"context"
-	"fmt"
 	"log"
 	"testing"
 	"time"
@@ -45,6 +44,10 @@ func TestUserItem(t *testing.T) {
 	defer closeContainer()
 
 	g.Describe("Create", func() {
+		g.AfterEach(func() {
+			rep.Delete(context.Background())
+		})
+
 		g.It("should crate one user item", func() {
 			time := time.Date(2022, 1, 8, 0, 0, 0, 0, time.UTC)
 			oid, err := rep.Create(context.Background(), primitive.NewObjectID(), "item-1", 1, time)
@@ -55,6 +58,10 @@ func TestUserItem(t *testing.T) {
 	})
 
 	g.Describe("FindByUserIdAndItemId", func() {
+		g.AfterEach(func() {
+			rep.Delete(context.Background())
+		})
+
 		g.It("should find one user item", func() {
 			time := time.Date(2022, 1, 8, 0, 0, 0, 0, time.UTC)
 			uid := primitive.NewObjectID()
@@ -102,8 +109,7 @@ func TestUserItem(t *testing.T) {
 			},
 		}
 
-		g.BeforeEach(func() {
-			fmt.Println("------------------ BeforeEach --------------------")
+		g.AfterEach(func() {
 			rep.Delete(context.Background())
 		})
 
@@ -172,7 +178,7 @@ func TestUserItem(t *testing.T) {
 			},
 		}
 
-		g.BeforeEach(func() {
+		g.AfterEach(func() {
 			rep.Delete(context.Background())
 		})
 
