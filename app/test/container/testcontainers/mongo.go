@@ -28,7 +28,7 @@ func SetupMongo(ctx context.Context) (*MongoContainer, error) {
 	port, _ := nat.NewPort("", "27017")
 
 	req := testcontainers.ContainerRequest{
-		Image:        "mongo:latest",
+		Image:        "mongo:5.0.12",
 		ExposedPorts: []string{"27017/tcp"},
 		Env: map[string]string{
 			"MONGO_INITDB_ROOT_USERNAME": ROOT_USERNAME,
