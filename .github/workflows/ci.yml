@@ -1,18 +1,48 @@
 name: Test and Lint
 
-on: 
- push:
-   branches:
-     - "main"
+on: [push]
 
 jobs:
- setup:
-   runs-on: ubuntu-latest
-   steps:
-      - uses: actions/checkout@v2
-      # goのセットアップ
-      - name: Set up golang
-        if: steps.changed-files.outputs.any_changed == 'true'
-        uses: actions/setup-go@v3
-        with:
-          go-version: '>=1.18.4'
+  test-and-lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    # container: 
+    #   image: jy8752/gacha-demo-app:latest
+    steps:
+        # protoもチェックアウト
+        - uses: actions/checkout@v3
+          with:
+            submodules: recursive
+        # goのセットアップ
+        - name: Set up golang
+          uses: actions/setup-go@v3
+          with:
+            go-version: '>=1.18.4'
+        # protoc
+        - name: Set up protoc
+          run: |
+            curl -OL https://github.com/google/protobuf/releases/download/v3.19.4/protoc-3.19.4-linux-x86_64.zip \
+            && unzip protoc-3.19.4-linux-x86_64.zip -d protoc3 \
+            && mv protoc3/bin/* /usr/local/bin/ \
+            && mv protoc3/include/* /usr/local/include/
+        # protoc-gen-co
+        - name: Install protoc-gen-go
+          run: |
+            go install github.com/golang/protobuf/protoc-gen-go@latest \
+            && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+        # protoファイルgenerate
+        - name: Generate gRPC code
+          run: |
+            mkdir -p pkg/grpc && protoc --go_out=./pkg/grpc --go_opt=paths=source_relative \
+            --go-grpc_out=./pkg/grpc --go-grpc_opt=paths=source_relative \
+            -I=./proto \
+            proto/**/*.proto
+        # build
+        - name: Build
+          run: go build
+        # test
+        - name: Test
+          run: go test ./...
+        # 静的解析
